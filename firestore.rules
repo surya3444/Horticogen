@@ -1,0 +1,100 @@
+rules_version = '2';
+
+// ============================================================================
+// HorticoGen Firestore security rules.
+// Paste this into Firebase console → Firestore Database → Rules → Publish.
+//
+// IMPORTANT: keep the admin email list below in sync with
+// NEXT_PUBLIC_ADMIN_EMAILS in your .env.local.
+// ============================================================================
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function adminEmails() {
+      // 🔑 EDIT THIS LIST — these emails get full admin access.
+      return [
+        'admin@horticogen.com'
+      ];
+    }
+
+    function isAdmin() {
+      return isSignedIn()
+        && request.auth.token.email != null
+        && request.auth.token.email.lower() in adminEmails();
+    }
+
+    function isOwner(uid) {
+      return isSignedIn() && request.auth.uid == uid;
+    }
+
+    // ---- Users ----
+    match /users/{uid} {
+      allow read: if isOwner(uid) || isAdmin();
+      // A user may create/update only their own doc. The role field may be
+      // 'admin' only if their email is in the allowlist; otherwise 'customer'.
+      allow create, update: if (isOwner(uid)
+          && (request.resource.data.role == 'customer'
+              || (request.resource.data.role == 'admin' && isAdmin())))
+        || isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // ---- Carts (private to each user) ----
+    match /carts/{uid} {
+      allow read, write: if isOwner(uid);
+    }
+
+    // ---- Categories (public read, admin write) ----
+    match /categories/{id} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // ---- Products (public read, admin write) ----
+    match /products/{id} {
+      allow read: if true;
+      // Admins manage products. Allow signed-in users to update ONLY the
+      // rating aggregate fields (used by the review transaction).
+      allow create, delete: if isAdmin();
+      allow update: if isAdmin()
+        || (isSignedIn()
+            && request.resource.data.diff(resource.data).affectedKeys()
+                 .hasOnly(['ratingAvg', 'ratingCount']));
+    }
+
+    // ---- Orders ----
+    match /orders/{id} {
+      allow read: if isAdmin()
+        || (isSignedIn() && resource.data.userId == request.auth.uid);
+      // A customer can create their own order; cannot tamper with status.
+      allow create: if isSignedIn()
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.paymentStatus == 'pending'
+        && request.resource.data.orderStatus == 'placed';
+      allow update, delete: if isAdmin();
+    }
+
+    // ---- Reviews ----
+    match /reviews/{id} {
+      allow read: if true;
+      // One review per (user, product) is enforced in app code.
+      allow create: if isSignedIn()
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.rating >= 1
+        && request.resource.data.rating <= 5;
+      allow update, delete: if isAdmin()
+        || (isSignedIn() && resource.data.userId == request.auth.uid);
+    }
+
+    // ---- Site settings (public read, admin write) ----
+    match /settings/{doc} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+  }
+}

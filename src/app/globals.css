@@ -1,26 +1,69 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  /* Brand palette — HorticoGen */
+  --color-terracotta-50: #fbf2ee;
+  --color-terracotta-100: #f5ddd2;
+  --color-terracotta-200: #e9b9a4;
+  --color-terracotta-300: #dc9476;
+  --color-terracotta-400: #cf7554;
+  --color-terracotta-500: #be5a38;
+  --color-terracotta-600: #a44a2d;
+  --color-terracotta-700: #843a24;
+  --color-terracotta-800: #642c1c;
+  --color-terracotta-900: #4a2115;
+
+  --color-leaf-50: #f1f7eb;
+  --color-leaf-100: #ddedc9;
+  --color-leaf-200: #bedc97;
+  --color-leaf-300: #9bc863;
+  --color-leaf-400: #7bb142;
+  --color-leaf-500: #5c9a35;
+  --color-leaf-600: #477a29;
+  --color-leaf-700: #375e21;
+  --color-leaf-800: #2a481a;
+  --color-leaf-900: #1f3514;
+
+  --color-cream: #faf7f2;
+  --color-sand: #f3ede3;
+  --color-ink: #2b2724;
+  --color-muted: #7a726a;
+
+  --color-background: #ffffff;
+  --color-foreground: #2b2724;
+
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-poppins), ui-sans-serif, system-ui, sans-serif;
+
+  --radius-card: 1rem;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
 }
+
+h1, h2, h3, h4, h5, h6, .font-display {
+  font-family: var(--font-display);
+}
+
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in { animation: fade-in 0.4s ease both; }
+
+@keyframes slide-in-right {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+.animate-slide-in-right { animation: slide-in-right 0.28s ease both; }

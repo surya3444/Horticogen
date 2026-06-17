@@ -1,0 +1,34 @@
+rules_version = '2';
+
+// ============================================================================
+// HorticoGen Cloud Storage security rules.
+// Paste this into Firebase console → Storage → Rules → Publish.
+// Requires the Blaze (pay-as-you-go) plan to enable Storage.
+//
+// Keep the admin email list in sync with firestore.rules / .env.local.
+// ============================================================================
+
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    function isAdmin() {
+      return request.auth != null
+        && request.auth.token.email != null
+        && request.auth.token.email.lower() in [
+          'admin@horticogen.com'  // 🔑 EDIT THIS LIST
+        ];
+    }
+
+    function isImage() {
+      return request.resource.contentType.matches('image/.*')
+        && request.resource.size < 5 * 1024 * 1024; // 5 MB max
+    }
+
+    // All store media (categories, products, hero, payment QR, logo) is
+    // publicly readable; only admins can upload or delete.
+    match /{folder}/{allPaths=**} {
+      allow read: if true;
+      allow write: if isAdmin() && (request.method == 'delete' || isImage());
+    }
+  }
+}
