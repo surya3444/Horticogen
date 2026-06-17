@@ -1,7 +1,7 @@
-import { getApp, getApps, initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
-import { getStorage } from "firebase/storage";
+import { getApp, getApps, initializeApp, type FirebaseApp } from "firebase/app";
+import { getAuth, type Auth } from "firebase/auth";
+import { getFirestore, type Firestore } from "firebase/firestore";
+import { getStorage, type FirebaseStorage } from "firebase/storage";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -12,9 +12,26 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+// Only initialize when we actually have a config. This keeps `next build`
+// from crashing when prerendering pages if the env vars aren't present in the
+// build environment — the services are only ever USED in the browser (inside
+// effects / event handlers), where the env vars are inlined by Next.
+const hasConfig = !!firebaseConfig.apiKey;
 
-export const auth = getAuth(app);
-export const db = getFirestore(app);
-export const storage = getStorage(app);
+const app: FirebaseApp | undefined = hasConfig
+  ? getApps().length
+    ? getApp()
+    : initializeApp(firebaseConfig)
+  : undefined;
+
+if (!hasConfig && typeof window !== "undefined") {
+  // Surfaced in the browser console if the deploy is missing its config.
+  console.error(
+    "[Firebase] Missing NEXT_PUBLIC_FIREBASE_* env vars — set them in your hosting provider's environment settings."
+  );
+}
+
+export const auth = (app ? getAuth(app) : undefined) as Auth;
+export const db = (app ? getFirestore(app) : undefined) as Firestore;
+export const storage = (app ? getStorage(app) : undefined) as FirebaseStorage;
 export default app;
