@@ -7,14 +7,15 @@ import { useCart } from "@/context/CartContext";
 import { useSite } from "@/context/SiteContext";
 import { Button } from "@/components/ui/Button";
 import { formatINR } from "@/lib/utils";
+import { amountToFreeDelivery } from "@/lib/shipping";
 
 export function CartDrawer() {
   const { items, subtotal, drawerOpen, setDrawerOpen, updateQty, removeItem } = useCart();
-  const { general } = useSite();
+  const { delivery } = useSite();
 
   if (!drawerOpen) return null;
 
-  const remaining = general.freeDeliveryThreshold - subtotal;
+  const remaining = amountToFreeDelivery(subtotal, delivery);
 
   return (
     <div className="fixed inset-0 z-[80]">

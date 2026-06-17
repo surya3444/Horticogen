@@ -49,7 +49,7 @@ export default function GeneralSettingsPage() {
             <ImageUploader label="Logo (optional — falls back to text logo)" value={g.logo} onChange={(url) => setG({ ...g, logo: url })} folder="branding" aspect="aspect-[4/1]" />
           </div>
           <Input label="Announcement bar text" value={g.announcementBar} onChange={(e) => setG({ ...g, announcementBar: e.target.value })} />
-          <Input label="Free delivery threshold (₹)" type="number" value={g.freeDeliveryThreshold} onChange={(e) => setG({ ...g, freeDeliveryThreshold: Number(e.target.value) })} />
+          <p className="text-xs text-muted">Delivery charges & free-delivery threshold are managed under <span className="font-medium">Payment Details</span>.</p>
         </Card>
 
         <Card className="space-y-4">

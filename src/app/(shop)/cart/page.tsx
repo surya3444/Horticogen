@@ -7,11 +7,13 @@ import { Button } from "@/components/ui/Button";
 import { useCart } from "@/context/CartContext";
 import { useSite } from "@/context/SiteContext";
 import { formatINR } from "@/lib/utils";
+import { computeShipping } from "@/lib/shipping";
 
 export default function CartPage() {
   const { items, subtotal, updateQty, removeItem } = useCart();
-  const { general } = useSite();
-  const shipping = subtotal >= general.freeDeliveryThreshold || subtotal === 0 ? 0 : 49;
+  const { delivery } = useSite();
+  // Region is unknown until checkout, so show the default charge as an estimate.
+  const shipping = computeShipping(subtotal, delivery);
 
   if (items.length === 0) {
     return (

@@ -1,6 +1,7 @@
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { db } from "./client";
 import type {
+  DeliverySettings,
   FooterSettings,
   GeneralSettings,
   HeroSettings,
@@ -8,7 +9,7 @@ import type {
   PaymentSettings,
 } from "@/lib/types";
 
-type SettingsDoc = "hero" | "payment" | "homepage" | "general" | "footer";
+type SettingsDoc = "hero" | "payment" | "homepage" | "general" | "footer" | "delivery";
 
 async function read<T>(name: SettingsDoc, fallback: T): Promise<T> {
   const snap = await getDoc(doc(db, "settings", name));
@@ -37,10 +38,14 @@ export const defaultGeneral: GeneralSettings = {
   siteName: "HorticoGen",
   logo: "",
   announcementBar: "Free delivery on orders above ₹699 🌱",
-  freeDeliveryThreshold: 699,
   contactEmail: "support@horticogen.com",
   contactPhone: "+91 90000 00000",
   social: [],
+};
+export const defaultDelivery: DeliverySettings = {
+  freeDeliveryThreshold: 699,
+  defaultCharge: 49,
+  regions: [],
 };
 export const defaultFooter: FooterSettings = {
   columns: [
@@ -70,6 +75,7 @@ export const getPayment = () => read("payment", defaultPayment);
 export const getHomepage = () => read("homepage", defaultHomepage);
 export const getGeneral = () => read("general", defaultGeneral);
 export const getFooter = () => read("footer", defaultFooter);
+export const getDelivery = () => read("delivery", defaultDelivery);
 
 // ---- Writers ----
 export const saveHero = (d: HeroSettings) => write("hero", d);
@@ -77,3 +83,4 @@ export const savePayment = (d: PaymentSettings) => write("payment", d);
 export const saveHomepage = (d: HomepageSettings) => write("homepage", d);
 export const saveGeneral = (d: GeneralSettings) => write("general", d);
 export const saveFooter = (d: FooterSettings) => write("footer", d);
+export const saveDelivery = (d: DeliverySettings) => write("delivery", d);

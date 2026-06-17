@@ -2,13 +2,26 @@
 
 import { createContext, useContext, useEffect, useState } from "react";
 import { listCategories, buildTree } from "@/lib/firebase/categories";
-import { getGeneral, getFooter, defaultGeneral, defaultFooter } from "@/lib/firebase/settings";
-import type { CategoryNode, FooterSettings, GeneralSettings } from "@/lib/types";
+import {
+  getGeneral,
+  getFooter,
+  getDelivery,
+  defaultGeneral,
+  defaultFooter,
+  defaultDelivery,
+} from "@/lib/firebase/settings";
+import type {
+  CategoryNode,
+  DeliverySettings,
+  FooterSettings,
+  GeneralSettings,
+} from "@/lib/types";
 
 interface SiteData {
   tree: CategoryNode[];
   general: GeneralSettings;
   footer: FooterSettings;
+  delivery: DeliverySettings;
   loading: boolean;
 }
 
@@ -16,6 +29,7 @@ const SiteContext = createContext<SiteData>({
   tree: [],
   general: defaultGeneral,
   footer: defaultFooter,
+  delivery: defaultDelivery,
   loading: true,
 });
 
@@ -24,18 +38,20 @@ export function SiteProvider({ children }: { children: React.ReactNode }) {
     tree: [],
     general: defaultGeneral,
     footer: defaultFooter,
+    delivery: defaultDelivery,
     loading: true,
   });
 
   useEffect(() => {
     (async () => {
       try {
-        const [cats, general, footer] = await Promise.all([
+        const [cats, general, footer, delivery] = await Promise.all([
           listCategories(),
           getGeneral(),
           getFooter(),
+          getDelivery(),
         ]);
-        setData({ tree: buildTree(cats), general, footer, loading: false });
+        setData({ tree: buildTree(cats), general, footer, delivery, loading: false });
       } catch (e) {
         console.error("Failed to load site data", e);
         setData((d) => ({ ...d, loading: false }));

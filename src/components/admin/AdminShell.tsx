@@ -31,7 +31,7 @@ const nav = [
   { href: "/admin/appearance/hero", label: "Hero Slider", icon: ImageIcon },
   { href: "/admin/appearance/homepage", label: "Homepage", icon: LayoutDashboard },
   { href: "/admin/appearance/general", label: "Branding & Footer", icon: Store },
-  { href: "/admin/settings/payment", label: "Payment Details", icon: Wallet },
+  { href: "/admin/settings/payment", label: "Payment & Delivery", icon: Wallet },
 ];
 
 export function AdminShell({ children }: { children: React.ReactNode }) {

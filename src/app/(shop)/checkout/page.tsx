@@ -19,12 +19,13 @@ import { getPayment, defaultPayment } from "@/lib/firebase/settings";
 import { saveAddresses } from "@/lib/firebase/users";
 import { createOrder } from "@/lib/firebase/orders";
 import { formatINR, genId, cn } from "@/lib/utils";
+import { computeShipping } from "@/lib/shipping";
 import type { Address, PaymentMethod, PaymentSettings } from "@/lib/types";
 
 function CheckoutInner() {
   const { profile, refreshProfile } = useAuth();
   const { items, subtotal, clear } = useCart();
-  const { general } = useSite();
+  const { delivery } = useSite();
   const { toast } = useToast();
   const router = useRouter();
 
@@ -37,7 +38,8 @@ function CheckoutInner() {
   const [placing, setPlacing] = useState(false);
   const [copied, setCopied] = useState("");
 
-  const shipping = subtotal >= general.freeDeliveryThreshold ? 0 : 49;
+  const selectedState = addresses.find((a) => a.id === selectedAddr)?.state;
+  const shipping = computeShipping(subtotal, delivery, selectedState);
   const total = subtotal + shipping;
 
   useEffect(() => {

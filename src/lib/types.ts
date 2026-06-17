@@ -191,10 +191,21 @@ export interface GeneralSettings {
   siteName: string;
   logo: string;
   announcementBar: string;
-  freeDeliveryThreshold: number;
   contactEmail: string;
   contactPhone: string;
   social: SocialLink[];
+}
+
+export interface DeliveryRegion {
+  id: string;
+  region: string; // matched (case-insensitive) against the shipping address state
+  charge: number;
+}
+
+export interface DeliverySettings {
+  freeDeliveryThreshold: number; // 0 disables free delivery
+  defaultCharge: number; // used when no region matches
+  regions: DeliveryRegion[];
 }
 
 export interface FooterColumn {

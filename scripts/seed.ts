@@ -304,12 +304,20 @@ async function main() {
     siteName: "HorticoGen",
     logo: "",
     announcementBar: "🌱 Free delivery on orders above ₹699  •  Easy 7-day replacement",
-    freeDeliveryThreshold: 699,
     contactEmail: "support@horticogen.com",
     contactPhone: "+91 90000 00000",
     social: [
       { platform: "Instagram", url: "https://instagram.com" },
       { platform: "Facebook", url: "https://facebook.com" },
+    ],
+  });
+
+  await setDoc(doc(db, "settings", "delivery"), {
+    freeDeliveryThreshold: 699,
+    defaultCharge: 49,
+    regions: [
+      { id: "r1", region: "Maharashtra", charge: 39 },
+      { id: "r2", region: "Karnataka", charge: 59 },
     ],
   });
 
