@@ -1,6 +1,10 @@
 import { getApp, getApps, initializeApp, type FirebaseApp } from "firebase/app";
 import { getAuth, type Auth } from "firebase/auth";
-import { getFirestore, type Firestore } from "firebase/firestore";
+import {
+  getFirestore,
+  initializeFirestore,
+  type Firestore,
+} from "firebase/firestore";
 import { getStorage, type FirebaseStorage } from "firebase/storage";
 
 const firebaseConfig = {
@@ -31,7 +35,18 @@ if (!hasConfig && typeof window !== "undefined") {
   );
 }
 
+// Initialize Firestore with `ignoreUndefinedProperties` so writes that contain
+// optional/undefined fields (e.g. homepage section configs) don't get rejected.
+function makeDb(a: FirebaseApp): Firestore {
+  try {
+    return initializeFirestore(a, { ignoreUndefinedProperties: true });
+  } catch {
+    // Already initialized (e.g. via HMR) — reuse the existing instance.
+    return getFirestore(a);
+  }
+}
+
 export const auth = (app ? getAuth(app) : undefined) as Auth;
-export const db = (app ? getFirestore(app) : undefined) as Firestore;
+export const db = (app ? makeDb(app) : undefined) as Firestore;
 export const storage = (app ? getStorage(app) : undefined) as FirebaseStorage;
 export default app;

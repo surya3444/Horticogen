@@ -16,6 +16,7 @@ import {
   X,
   Store,
   LogOut,
+  BarChart3,
 } from "lucide-react";
 import { Logo } from "@/components/shop/Logo";
 import { useAuth } from "@/context/AuthContext";
@@ -26,6 +27,7 @@ const nav = [
   { href: "/admin/categories", label: "Categories", icon: FolderTree },
   { href: "/admin/products", label: "Products", icon: Package },
   { href: "/admin/orders", label: "Orders", icon: ShoppingCart },
+  { href: "/admin/analytics", label: "Analytics", icon: BarChart3 },
   { href: "/admin/reviews", label: "Reviews", icon: Star },
   { href: "/admin/customers", label: "Customers", icon: Users },
   { href: "/admin/appearance/hero", label: "Hero Slider", icon: ImageIcon },

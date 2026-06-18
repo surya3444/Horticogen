@@ -11,15 +11,19 @@ import { PageLoader } from "@/components/ui/Spinner";
 import { ProductGrid } from "@/components/shop/sections";
 import { ReviewSection } from "@/components/shop/ReviewSection";
 import { useCart } from "@/context/CartContext";
+import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/components/ui/Toast";
+import { Input } from "@/components/ui/Input";
 import { getProductBySlug, listProductsByCategories } from "@/lib/firebase/products";
 import { getCategory } from "@/lib/firebase/categories";
+import { recordProductView, recordStockRequest } from "@/lib/firebase/analytics";
 import { formatINR, discountPercent } from "@/lib/utils";
 import type { Category, Product, Variant } from "@/lib/types";
 
 export default function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = use(params);
   const { addItem, setDrawerOpen } = useCart();
+  const { user, profile } = useAuth();
   const { toast } = useToast();
 
   const [product, setProduct] = useState<Product | null>(null);
@@ -29,6 +33,9 @@ export default function ProductPage({ params }: { params: Promise<{ slug: string
   const [variant, setVariant] = useState<Variant | null>(null);
   const [activeImg, setActiveImg] = useState(0);
   const [qty, setQty] = useState(1);
+  const [notifyEmail, setNotifyEmail] = useState("");
+  const [notifySent, setNotifySent] = useState(false);
+  const [notifyBusy, setNotifyBusy] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -40,10 +47,15 @@ export default function ProductPage({ params }: { params: Promise<{ slug: string
         if (p.categoryId) setCategory(await getCategory(p.categoryId));
         const rel = await listProductsByCategories([p.categoryId]);
         setRelated(rel.filter((r) => r.id !== p.id).slice(0, 4));
+        recordProductView(p); // fire-and-forget analytics
       }
       setLoading(false);
     })();
   }, [slug]);
+
+  useEffect(() => {
+    if (profile?.email) setNotifyEmail(profile.email);
+  }, [profile?.email]);
 
   if (loading) return <PageLoader />;
 
@@ -76,6 +88,24 @@ export default function ProductPage({ params }: { params: Promise<{ slug: string
     } else {
       toast("Added to cart", "success");
       setDrawerOpen(true);
+    }
+  };
+
+  const notifyMe = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!notifyEmail.trim()) {
+      toast("Please enter your email", "error");
+      return;
+    }
+    setNotifyBusy(true);
+    try {
+      await recordStockRequest(product, notifyEmail.trim(), user?.uid || "");
+      setNotifySent(true);
+      toast("We'll notify you when it's back!", "success");
+    } catch {
+      toast("Could not register your request", "error");
+    } finally {
+      setNotifyBusy(false);
     }
   };
 
@@ -193,6 +223,30 @@ export default function ProductPage({ params }: { params: Promise<{ slug: string
 
           {variant && variant.stock > 0 && variant.stock <= 5 && (
             <p className="mt-2 text-sm text-terracotta-600">Only {variant.stock} left in stock!</p>
+          )}
+
+          {/* Notify me when back in stock */}
+          {outOfStock && (
+            <div className="mt-4 rounded-2xl border border-sand bg-cream p-4">
+              {notifySent ? (
+                <p className="text-sm text-leaf-700">✓ Thanks! We&apos;ll email you when this is back in stock.</p>
+              ) : (
+                <>
+                  <p className="text-sm font-medium text-ink">Out of stock — get notified when it&apos;s back</p>
+                  <form onSubmit={notifyMe} className="mt-2 flex flex-col gap-2 sm:flex-row">
+                    <Input
+                      type="email"
+                      value={notifyEmail}
+                      onChange={(e) => setNotifyEmail(e.target.value)}
+                      placeholder="you@email.com"
+                      className="flex-1"
+                      required
+                    />
+                    <Button type="submit" variant="secondary" loading={notifyBusy}>Notify me</Button>
+                  </form>
+                </>
+              )}
+            </div>
           )}
 
           {/* Trust row */}

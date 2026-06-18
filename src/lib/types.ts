@@ -165,17 +165,44 @@ export interface PaymentSettings {
   instructions: string;
 }
 
+export type SectionType = "products" | "banner" | "categoryStrip" | "promo";
+
+// How a "products" section decides which products to show.
+export type ProductSource = "featured" | "newest" | "onSale" | "category" | "custom";
+
+export type SectionLayout = "grid" | "carousel";
+
 export interface CollectionSection {
   id: string;
-  type: "categoryStrip" | "featuredProducts" | "banner";
+  type: SectionType;
   title: string;
   subtitle?: string;
-  categoryId?: string; // for categoryStrip / banner CTA
-  image?: string; // for banner
+  enabled: boolean;
+  order: number;
+
+  // ---- products ----
+  source?: ProductSource;
+  categoryId?: string; // for source "category" or categoryStrip parent
+  productIds?: string[]; // for source "custom" (hand-picked, in order)
+  limit?: number; // max items to show
+  layout?: SectionLayout; // grid or horizontal carousel
   ctaText?: string;
   ctaLink?: string;
-  order: number;
-  enabled: boolean;
+
+  // ---- banner ----
+  desktopImage?: string;
+  mobileImage?: string;
+  bannerLink?: string;
+
+  // ---- promo (styled colour block, no image) ----
+  highlights?: string[]; // small pill labels, e.g. ["Air-purifying", "Pet-safe"]
+
+  // Deprecated: kept so older saved sections still read an image.
+  image?: string;
+}
+
+export interface HomepageSettings {
+  sections: CollectionSection[];
 }
 
 export interface HomepageSettings {

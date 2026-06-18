@@ -295,8 +295,11 @@ async function main() {
 
   await setDoc(doc(db, "settings", "homepage"), {
     sections: [
-      { id: "h1", type: "categoryStrip", title: "Shop by Category", order: 1, enabled: true },
-      { id: "h2", type: "featuredProducts", title: "Our Favourite Picks", subtitle: "Hand-selected best-sellers", order: 2, enabled: true },
+      { id: "h1", type: "categoryStrip", title: "Shop by Category", subtitle: "Find the perfect green companion", order: 1, enabled: true },
+      { id: "h2", type: "products", source: "featured", title: "Our Favourite Picks", subtitle: "Hand-selected best-sellers", layout: "carousel", limit: 10, order: 2, enabled: true },
+      { id: "h3", type: "promo", title: "Grown with science, delivered with love", subtitle: "Every HorticoGen plant comes with research-backed care notes so your greens thrive — not just survive.", highlights: ["🌱 Air-purifying", "🐾 Pet-safe options", "📄 Research links"], order: 3, enabled: true },
+      { id: "h4", type: "products", source: "onSale", title: "Deals & Offers", subtitle: "Limited-time discounts", layout: "carousel", limit: 10, order: 4, enabled: true },
+      { id: "h5", type: "products", source: "newest", title: "New Arrivals", layout: "grid", limit: 8, order: 5, enabled: true },
     ],
   });
 

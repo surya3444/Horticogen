@@ -18,7 +18,8 @@ service cloud.firestore {
     function adminEmails() {
       // 🔑 EDIT THIS LIST — these emails get full admin access.
       return [
-        'admin@horticogen.com'
+        'admin@horticogen.com',
+        'isuryakarthikvarma@gmail.com'
       ];
     }
 
@@ -95,6 +96,30 @@ service cloud.firestore {
     match /settings/{doc} {
       allow read: if true;
       allow write: if isAdmin();
+    }
+
+    // ---- Analytics (anonymous visitors write counts; only admin reads) ----
+    // Note: writes are open so anonymous views/searches can be counted from the
+    // client. Values are not trusted for anything security-sensitive.
+    match /productMetrics/{id} {
+      allow read: if isAdmin();
+      allow create, update: if true;
+      allow delete: if isAdmin();
+    }
+    match /searchTerms/{id} {
+      allow read: if isAdmin();
+      allow create, update: if true;
+      allow delete: if isAdmin();
+    }
+    match /stockRequests/{id} {
+      allow read: if isAdmin();
+      allow create: if true;
+      allow update, delete: if isAdmin();
+    }
+
+    // ---- Explicit deny for anything not matched above ----
+    match /{document=**} {
+      allow read, write: if false;
     }
   }
 }

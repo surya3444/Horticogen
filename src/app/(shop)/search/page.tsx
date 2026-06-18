@@ -6,6 +6,7 @@ import { Search as SearchIcon } from "lucide-react";
 import { ProductGrid } from "@/components/shop/sections";
 import { Skeleton } from "@/components/ui/Spinner";
 import { searchProducts } from "@/lib/firebase/products";
+import { recordSearch } from "@/lib/firebase/analytics";
 import type { Product } from "@/lib/types";
 
 function SearchInner() {
@@ -26,6 +27,7 @@ function SearchInner() {
     searchProducts(q).then((r) => {
       setResults(r);
       setLoading(false);
+      recordSearch(q, r.length); // analytics: capture demand (incl. zero-result searches)
     });
   }, [q]);
 

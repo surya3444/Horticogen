@@ -15,20 +15,48 @@ service firebase.storage {
       return request.auth != null
         && request.auth.token.email != null
         && request.auth.token.email.lower() in [
-          'admin@horticogen.com'  // 🔑 EDIT THIS LIST
+          // 🔑 EDIT THIS LIST (keep in sync with firestore.rules)
+          'admin@horticogen.com',
+          'isuryakarthikvarma@gmail.com'
         ];
     }
 
     function isImage() {
       return request.resource.contentType.matches('image/.*')
-        && request.resource.size < 5 * 1024 * 1024; // 5 MB max
+        && request.resource.size < 10 * 1024 * 1024; // 10 MB max
     }
 
-    // All store media (categories, products, hero, payment QR, logo) is
-    // publicly readable; only admins can upload or delete.
-    match /{folder}/{allPaths=**} {
+    // All store media (categories, products, hero, banners, branding/logo,
+    // payment QR) lives in named folders. Publicly readable; only admins can
+    // upload (images only) or delete.
+    match /categories/{allPaths=**} {
       allow read: if true;
       allow write: if isAdmin() && (request.method == 'delete' || isImage());
+    }
+    match /products/{allPaths=**} {
+      allow read: if true;
+      allow write: if isAdmin() && (request.method == 'delete' || isImage());
+    }
+    match /hero/{allPaths=**} {
+      allow read: if true;
+      allow write: if isAdmin() && (request.method == 'delete' || isImage());
+    }
+    match /banners/{allPaths=**} {
+      allow read: if true;
+      allow write: if isAdmin() && (request.method == 'delete' || isImage());
+    }
+    match /branding/{allPaths=**} {
+      allow read: if true;
+      allow write: if isAdmin() && (request.method == 'delete' || isImage());
+    }
+    match /payment/{allPaths=**} {
+      allow read: if true;
+      allow write: if isAdmin() && (request.method == 'delete' || isImage());
+    }
+
+    // Deny anything outside the known folders.
+    match /{allPaths=**} {
+      allow read, write: if false;
     }
   }
 }
