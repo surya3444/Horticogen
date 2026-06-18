@@ -25,7 +25,7 @@ export function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
           <h1 className="font-display text-3xl font-bold text-leaf-800 md:text-5xl">
             Bring nature home 🌿
           </h1>
-          <p className="mt-2 text-leaf-700">Add hero slides from the admin dashboard.</p>
+          <p className="mt-2 text-leaf-700">Wait for the Slides to Appear</p>
         </div>
       </div>
     );

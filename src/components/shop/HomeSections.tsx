@@ -6,7 +6,7 @@ import Image from "next/image";
 import { useSite } from "@/context/SiteContext";
 import { listProducts } from "@/lib/firebase/products";
 import { CategoryStrip, ProductGrid, SectionHeading } from "./sections";
-import { ProductCard } from "./ProductCard";
+import { ProductCarousel } from "./ProductCarousel";
 import { Skeleton } from "@/components/ui/Spinner";
 import type { CollectionSection, Product } from "@/lib/types";
 
@@ -200,13 +200,7 @@ function SectionRenderer({
     <section className="mx-auto mt-12 max-w-7xl px-4 lg:px-6">
       <SectionHeading title={section.title} subtitle={section.subtitle} href={href} />
       {section.layout === "carousel" ? (
-        <div className="no-scrollbar -mx-1 flex gap-3 overflow-x-auto px-1 pb-2 sm:gap-4">
-          {items.map((p) => (
-            <div key={p.id} className="w-[44vw] shrink-0 sm:w-56 lg:w-60">
-              <ProductCard product={p} />
-            </div>
-          ))}
-        </div>
+        <ProductCarousel products={items} />
       ) : (
         <ProductGrid products={items} />
       )}
